@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA Astronomy Picture of the Day</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header .date {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .media-container {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .media-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .media-container iframe {
+            width: 100%;
+            max-width: 800px;
+            height: 450px;
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .explanation {
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        .metadata {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            padding-top: 1.5rem;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .metadata-item {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .metadata-item label {
+            display: block;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metadata-item span {
+            color: #666;
+        }
+
+        .links {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .links a {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .links a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .search-form {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .search-form h2 {
+            font-size: 1.25rem;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .form-toggle {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-toggle label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-toggle input[type="radio"] {
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input[type="date"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input[type="date"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .date-range-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group button {
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .apod-entry {
+            margin-bottom: 1rem;
+        }
+
+        .apod-entry h2 {
+            font-size: 1.5rem;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border: 1px solid #fcc;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .content {
+                padding: 1.5rem;
+            }
+
+            .metadata {
+                gap: 1rem;
+            }
+
+            .date-range-inputs {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>NASA Astronomy Picture of the Day</h1>
+            <div class="date">
+                {#if apods.size() == 1}
+                    {apods.get(0).date}
+                {#else}
+                    {apods.size()} entries
+                {/if}
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="search-form">
+                <h2>Search APOD</h2>
+                {#if error}
+                    <div class="error-message show">{error}</div>
+                {/if}
+                <div id="errorMessage" class="error-message"></div>
+                <form id="apodForm" method="GET" action="/apod/view">
+                    <div class="form-toggle">
+                        <label>
+                            <input type="radio" name="dateMode" value="single" checked>
+                            Single Date
+                        </label>
+                        <label>
+                            <input type="radio" name="dateMode" value="range">
+                            Date Range
+                        </label>
+                        <label>
+                            <input type="radio" name="dateMode" value="today">
+                            Today
+                        </label>
+                    </div>
+
+                    <div id="singleDateGroup" class="form-group">
+                        <label for="date">Date (yyyy-MM-dd)</label>
+                        <input type="date" id="date" name="date" min="1995-06-16" max="">
+                    </div>
+
+                    <div id="dateRangeGroup" class="form-group hidden">
+                        <div class="date-range-inputs">
+                            <div>
+                                <label for="start_date">Start Date</label>
+                                <input type="date" id="start_date" name="start_date" min="1995-06-16" max="">
+                            </div>
+                            <div>
+                                <label for="end_date">End Date</label>
+                                <input type="date" id="end_date" name="end_date" min="1995-06-16" max="">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit">Search</button>
+                    </div>
+                </form>
+            </div>
+
+            {#for apod in apods}
+            <div class="apod-entry">
+                <h2 style="color: #333; margin-bottom: 0.5rem;">{apod.title}</h2>
+                <p style="color: #667eea; font-weight: 600; margin-bottom: 1.5rem;">{apod.date}</p>
+
+                <div class="media-container">
+                    {#if apod.mediaType == 'image'}
+                        <img src="{apod.url}" alt="{apod.title}">
+                    {#else if apod.mediaType == 'video'}
+                        <iframe src="{apod.url}" allowfullscreen></iframe>
+                    {/if}
+                </div>
+
+                <div class="explanation">
+                    {apod.explanation}
+                </div>
+
+                <div class="metadata">
+                    {#if apod.copyright}
+                        <div class="metadata-item">
+                            <label>Copyright</label>
+                            <span>{apod.copyright}</span>
+                        </div>
+                    {/if}
+
+                    <div class="metadata-item">
+                        <label>Media Type</label>
+                        <span>{apod.mediaType}</span>
+                    </div>
+
+                    {#if apod.serviceVersion}
+                        <div class="metadata-item">
+                            <label>Service Version</label>
+                            <span>{apod.serviceVersion}</span>
+                        </div>
+                    {/if}
+                </div>
+
+                <div class="links">
+                    {#if apod.hdUrl}
+                        <a href="{apod.hdUrl}" target="_blank">View HD Image</a>
+                    {/if}
+                    <a href="/apod">View JSON</a>
+                </div>
+
+                {!{#if !apod.isLast}!}
+                    {!<hr style="margin: 2rem 0; border: none; border-top: 2px solid #f0f0f0;">!}
+                {!{/if}!}
+            </div>
+            {/for}
+        </div>
+    </div>
+
+    <script>
+        const dateMode = document.querySelectorAll('input[name="dateMode"]');
+        const singleDateGroup = document.getElementById('singleDateGroup');
+        const dateRangeGroup = document.getElementById('dateRangeGroup');
+        const dateInput = document.getElementById('date');
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+        const form = document.getElementById('apodForm');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Set max date to today for all date inputs
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('max', today);
+        startDateInput.setAttribute('max', today);
+        endDateInput.setAttribute('max', today);
+
+        // Function to show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+            setTimeout(() => {
+                errorMessage.classList.remove('show');
+            }, 5000);
+        }
+
+        // Constants for date range
+        const MIN_DATE = '1995-06-16';
+        const minDate = new Date(MIN_DATE);
+
+        // Function to validate date is not in the future
+        function isDateInFuture(dateString) {
+            if (!dateString) return false;
+            const selectedDate = new Date(dateString);
+            const todayDate = new Date();
+            todayDate.setHours(0, 0, 0, 0);
+            return selectedDate > todayDate;
+        }
+
+        // Function to validate date is not before minimum
+        function isDateBeforeMin(dateString) {
+            if (!dateString) return false;
+            const selectedDate = new Date(dateString);
+            return selectedDate < minDate;
+        }
+
+        // Function to calculate months between two dates
+        function getMonthsDifference(startDateString, endDateString) {
+            const start = new Date(startDateString);
+            const end = new Date(endDateString);
+
+            const yearDiff = end.getFullYear() - start.getFullYear();
+            const monthDiff = end.getMonth() - start.getMonth();
+            const dayDiff = end.getDate() - start.getDate();
+
+            let totalMonths = yearDiff * 12 + monthDiff;
+
+            // If the end day is less than start day, we haven't completed the month
+            if (dayDiff < 0) {
+                totalMonths--;
+            }
+
+            return totalMonths;
+        }
+
+        // Function to validate date range is not more than 6 months
+        function isDateRangeTooLarge(startDateString, endDateString) {
+            if (!startDateString || !endDateString) return false;
+
+            const monthsDiff = getMonthsDifference(startDateString, endDateString);
+            return monthsDiff > 6;
+        }
+
+        // Handle radio button changes
+        dateMode.forEach(radio => {
+            radio.addEventListener('change', function() {
+                // Clear any error messages when switching modes
+                errorMessage.classList.remove('show');
+
+                if (this.value === 'single') {
+                    singleDateGroup.classList.remove('hidden');
+                    dateRangeGroup.classList.add('hidden');
+                    // Clear range inputs
+                    startDateInput.value = '';
+                    endDateInput.value = '';
+                } else if (this.value === 'range') {
+                    singleDateGroup.classList.add('hidden');
+                    dateRangeGroup.classList.remove('hidden');
+                    // Clear single date input
+                    dateInput.value = '';
+                } else if (this.value === 'today') {
+                    singleDateGroup.classList.add('hidden');
+                    dateRangeGroup.classList.add('hidden');
+                    // Clear all inputs
+                    dateInput.value = '';
+                    startDateInput.value = '';
+                    endDateInput.value = '';
+                }
+            });
+        });
+
+        // Real-time validation for date range
+        function validateDateRange() {
+            if (!startDateInput.value || !endDateInput.value) {
+                return;
+            }
+
+            // Clear previous errors
+            errorMessage.classList.remove('show');
+
+            // Check if start date is after end date
+            if (startDateInput.value > endDateInput.value) {
+                showError('Start date cannot be after end date.');
+                return;
+            }
+
+            // Check if range is more than 6 months
+            if (isDateRangeTooLarge(startDateInput.value, endDateInput.value)) {
+                showError('Date range cannot be more than 6 months. Please select a shorter date range.');
+                return;
+            }
+        }
+
+        // Add event listeners for real-time validation
+        startDateInput.addEventListener('change', validateDateRange);
+        endDateInput.addEventListener('change', validateDateRange);
+
+        // Handle form submission
+        form.addEventListener('submit', function(e) {
+            const selectedMode = document.querySelector('input[name="dateMode"]:checked').value;
+
+            // Validate dates are in valid range
+            if (selectedMode === 'single') {
+                if (isDateBeforeMin(dateInput.value)) {
+                    e.preventDefault();
+                    showError('Date cannot be before June 16, 1995.');
+                    return;
+                }
+                if (isDateInFuture(dateInput.value)) {
+                    e.preventDefault();
+                    showError('Date cannot be in the future. Please select today or an earlier date.');
+                    return;
+                }
+                // Disable range inputs so they don't get submitted
+                startDateInput.disabled = true;
+                endDateInput.disabled = true;
+            } else if (selectedMode === 'range') {
+                if (!startDateInput.value || !endDateInput.value) {
+                    e.preventDefault();
+                    showError('Both start date and end date are required for date range search.');
+                    return;
+                }
+                if (isDateBeforeMin(startDateInput.value)) {
+                    e.preventDefault();
+                    showError('Start date cannot be before June 16, 1995.');
+                    return;
+                }
+                if (isDateBeforeMin(endDateInput.value)) {
+                    e.preventDefault();
+                    showError('End date cannot be before June 16, 1995.');
+                    return;
+                }
+                if (isDateInFuture(startDateInput.value)) {
+                    e.preventDefault();
+                    showError('Start date cannot be in the future. Please select today or an earlier date.');
+                    return;
+                }
+                if (isDateInFuture(endDateInput.value)) {
+                    e.preventDefault();
+                    showError('End date cannot be in the future. Please select today or an earlier date.');
+                    return;
+                }
+                if (startDateInput.value > endDateInput.value) {
+                    e.preventDefault();
+                    showError('Start date cannot be after end date.');
+                    return;
+                }
+                if (isDateRangeTooLarge(startDateInput.value, endDateInput.value)) {
+                    e.preventDefault();
+                    showError('Date range cannot be more than 6 months. Please select a shorter date range.');
+                    return;
+                }
+                // Disable single date input
+                dateInput.disabled = true;
+            } else if (selectedMode === 'today') {
+                // Disable all date inputs
+                dateInput.disabled = true;
+                startDateInput.disabled = true;
+                endDateInput.disabled = true;
+            }
+        });
+
+        // Initialize form based on current URL parameters
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const dateParam = urlParams.get('date');
+            const startDateParam = urlParams.get('start_date');
+            const endDateParam = urlParams.get('end_date');
+
+            if (startDateParam && endDateParam) {
+                // Date range mode
+                document.querySelector('input[name="dateMode"][value="range"]').checked = true;
+                singleDateGroup.classList.add('hidden');
+                dateRangeGroup.classList.remove('hidden');
+                startDateInput.value = startDateParam;
+                endDateInput.value = endDateParam;
+            } else if (dateParam) {
+                // Single date mode
+                document.querySelector('input[name="dateMode"][value="single"]').checked = true;
+                dateInput.value = dateParam;
+            } else {
+                // Today mode
+                document.querySelector('input[name="dateMode"][value="today"]').checked = true;
+                singleDateGroup.classList.add('hidden');
+                dateRangeGroup.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
